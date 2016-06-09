@@ -18,6 +18,11 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.StrokeType;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
+import javafx.concurrent.Service;
+import javafx.concurrent.Worker;
 import javafx.stage.Stage;
 
 import java.util.Vector;
@@ -29,7 +34,7 @@ import com.bh25034.config.ThreadedImplementation;
 import com.bh25034.logic.AlgorithmManagerJosephus;
 import com.bh25034.beans.Person;
 
-public class GUIJosephus extends Application implements Runnable {
+public class GUIJosephus extends Application {
 
 	private ApplicationContext context;
 	private AlgorithmManagerJosephus algorithmManager;
@@ -40,6 +45,7 @@ public class GUIJosephus extends Application implements Runnable {
 	private GraphicsContext gc;
 	private TextArea display;
 	private String resultText;
+	private Task<Vector<Person>> task;
 	
 	public static void main(String[] args) {
         launch(args);
@@ -87,6 +93,7 @@ public class GUIJosephus extends Application implements Runnable {
         this.display.setMinSize(800, 100);
         this.display.setMaxSize(800, 100);
         this.display.setText("Results will appear here.");
+        this.display.setWrapText(false);
         
         VBox vbox = new VBox();
         vbox.setStyle("-fx-background-color: grey;");
@@ -108,7 +115,7 @@ public class GUIJosephus extends Application implements Runnable {
         btnStart.setOnAction(new EventHandler<ActionEvent>() {
 		      //@Override 
 		      public void handle(ActionEvent event) {
-		    	   run();
+		    	  kickOff();
 		      }
 		    });
         
@@ -121,6 +128,8 @@ public class GUIJosephus extends Application implements Runnable {
 		      //@Override 
 		      public void handle(ActionEvent event) {
 		    	   initialiseCircles(gc);
+		    	   display.setText("");
+		   		   resultText = "";
 		      }
 		    });
         
@@ -231,37 +240,55 @@ public class GUIJosephus extends Application implements Runnable {
 		
 	}
 
-	@Override
-	public void run() {
-		// TODO Auto-generated method stub
+	public void kickOff() {
 		
-		try {
-	        
-			this.people = this.algorithmManager.getPeople();
-			
-			while (this.people.size() > 1) {
-			
-				this.algorithmManager.run();
-				this.people = this.algorithmManager.getPeople();
-				this.resultText = this.algorithmManager.getResultText();
-				this.display.setText(this.resultText);
-				this.repaintCircles(this.gc);
-				this.pl(this.resultText);
-				
-				Thread.sleep(1000);
-				
-			}
-			
-			this.pl("SURVIVOR: " + this.people.get(this.people.size() - 1).getPosition());
-            
-        } 
+		this.resultText = "";
+		this.people = this.algorithmManager.getPeople();
 		
-		catch (InterruptedException iex) {
-            
-        	this.pl("Exception in thread: " + iex.getMessage());
-        	iex.printStackTrace();
-        	
-        }
+		this.task = new Task<Vector<Person>>() {
+  		  @Override 
+  		  protected Vector<Person> call() throws InterruptedException {
+  	            
+			    
+  			try {
+  		        
+  				
+  				while (people.size() > 1) {
+  				
+  					algorithmManager.run();
+  					people = algorithmManager.getPeople();
+  					resultText += algorithmManager.getResultText();
+  					display.setText(resultText);
+  					display.setWrapText(false);
+  					repaintCircles(gc);
+  					//pl(resultText);
+  					
+  					Thread.sleep(1000);
+  					
+  				}
+  				
+  				resultText += "SURVIVOR: " + people.get(people.size() - 1).getPosition();
+  				
+  				display.setText(resultText);
+				display.setWrapText(false);
+  	            
+  	        } 
+  			
+  			catch (InterruptedException iex) {
+  	            
+  	        	pl("Exception in thread: " + iex.getMessage());
+  	        	iex.printStackTrace();
+  	        	
+  	        }
+  	      
+  			  return null;
+  	          
+  		  };
+  		  
+  		  
+  	  };
+  	  
+  	  new Thread(task).start();
 	
 	}
 	

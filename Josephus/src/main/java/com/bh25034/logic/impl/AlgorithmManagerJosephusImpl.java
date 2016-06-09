@@ -38,6 +38,7 @@ public class AlgorithmManagerJosephusImpl implements AlgorithmManagerJosephus {
 				if (this.count % this.killInterval == 0) {
 					
 					this.resultText += "FLAGGING " + this.people.get(a).getPosition() + " FOR DEATH\n";
+					//this.resultText = "FLAGGING " + this.people.get(a).getPosition() + " FOR DEATH\n";
 					//this.pl(this.resultText);
 					this.people.get(a).setKilled(true);
 					this.orderKilled ++;
