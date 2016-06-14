@@ -171,33 +171,61 @@ public class GUIJosephus extends Application {
 		gc.setFill(Color.GREY);
 		gc.setLineWidth(5);
 		
-		int xord = 300;
-		int yord = 300;
-		int width = 30;
-		int height = 30;
-		int xorigin = 300;
-		int yorigin = 300;
-		double radius = 0;
-		double theta = 0; //360 % 39 = 9.2
-		double interval = 360 / this.numberOfPeople;
 		
-		gc.fillOval(xord, yord, width, height);
-		
-		for (int a = 0; a < this.numberOfPeople; a ++) {
 
-			gc.setFill(Color.WHITE);
-			radius = (xord ^ 2) + (yord ^ 2);
-			radius = Math.sqrt(radius);
-			theta += Math.toRadians(interval);
-			xord = (int) (xorigin + ((radius + 200) * Math.cos(theta)));
-			yord = (int) (yorigin + ((radius + 200) * Math.sin(theta)));
-			gc.fillOval(xord, yord, width, height);
+		this.task = new Task<Vector<Person>>() {
+			@Override 
+			protected Vector<Person> call() throws InterruptedException {
 			
-			gc.setFill(Color.RED);
-			gc.fillText("" + a, xord + 10, yord + 15);
-			
-		}		
-		
+				try {
+							
+					int xord = 300;
+					int yord = 300;
+					int width = 30;
+					int height = 30;
+					int xorigin = 300;
+					int yorigin = 300;
+					double radius = 0;
+					double theta = 0; //360 % 39 = 9.2
+					double interval = 360 / numberOfPeople;
+								
+					gc.fillOval(xord, yord, width, height);
+					
+					for (int a = 0; a <= numberOfPeople; a ++) {
+					
+						gc.setFill(Color.WHITE);
+						radius = (xord ^ 2) + (yord ^ 2);
+						radius = Math.sqrt(radius);
+						theta += Math.toRadians(interval);
+						xord = (int) (xorigin + ((radius + 200) * Math.cos(theta)));
+						yord = (int) (yorigin + ((radius + 200) * Math.sin(theta)));
+						gc.fillOval(xord, yord, width, height);
+							
+						gc.setFill(Color.RED);
+						gc.fillText("" + a, xord + 10, yord + 15);
+							
+						Thread.sleep(100);
+						
+					}		
+					
+				} 
+						
+				catch (InterruptedException iex) {
+				            
+					pl("Exception in thread: " + iex.getMessage());
+					iex.printStackTrace();
+				        	
+				}
+				      
+				return null;
+				          
+			};
+			  
+			  
+		};
+		  
+		new Thread(task).start();
+	  	  
 	}
 	
 	private void repaintCircles(GraphicsContext gc) {
@@ -217,7 +245,7 @@ public class GUIJosephus extends Application {
 		
 		gc.fillOval(xord, yord, width, height);
 		
-		for (int a = 0; a < this.numberOfPeople; a ++) {
+		for (int a = 0; a <= this.numberOfPeople; a ++) {
 
 			gc.setFill(Color.WHITE);
 			radius = (xord ^ 2) + (yord ^ 2);

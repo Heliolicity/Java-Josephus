@@ -5,10 +5,10 @@
  
  	<bean id="algorithmManager" class="com.bh25034.logic.impl.AlgorithmManagerJosephusImpl">
  		<constructor-arg type ="int">
-            <value>14</value>    
+            <value>39</value>    
         </constructor-arg>
         <constructor-arg type ="int">
-            <value>2</value>    
+            <value>8</value>    
         </constructor-arg>
  	</bean>
     
