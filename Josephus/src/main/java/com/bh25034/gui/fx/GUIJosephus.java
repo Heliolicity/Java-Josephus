@@ -30,7 +30,7 @@ import java.util.Vector;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.bh25034.config.ThreadedImplementation;
+//import com.bh25034.config.ThreadedImplementation;
 import com.bh25034.logic.AlgorithmManagerJosephus;
 import com.bh25034.beans.Person;
 
@@ -38,7 +38,7 @@ public class GUIJosephus extends Application {
 
 	private ApplicationContext context;
 	private AlgorithmManagerJosephus algorithmManager;
-	private ThreadedImplementation threadedImplementation;
+	//private ThreadedImplementation threadedImplementation;
 	private Vector<Person> people;
 	private int numberOfPeople;
 	private int killInterval;
@@ -46,6 +46,9 @@ public class GUIJosephus extends Application {
 	private TextArea display;
 	private String resultText;
 	private Task<Vector<Person>> task;
+	private TextField txtNumber;
+	private TextField txtInterval;
+	private Canvas canvas;
 	
 	public static void main(String[] args) {
         launch(args);
@@ -70,24 +73,34 @@ public class GUIJosephus extends Application {
 		}
 		
 		this.algorithmManager.setPeople(this.people);		
-		this.threadedImplementation = new ThreadedImplementation(this.algorithmManager);
+		//this.threadedImplementation = new ThreadedImplementation(this.algorithmManager);
 		
 		primaryStage.setTitle("Josephus Algorithm");
 		
         FlowPane root = new FlowPane();
         root.setStyle("-fx-background-color: black;");
         
-        Canvas canvas = new Canvas(600, 600);
-        this.gc = canvas.getGraphicsContext2D();
+        this.canvas = new Canvas(600, 600);
+        this.gc = this.canvas.getGraphicsContext2D();
         
         //this.drawShapes(gc);
-        this.initialiseCircles(gc);
+        this.initialiseCircles(this.gc);
         
-        root.getChildren().add(canvas);
+        root.getChildren().add(this.canvas);
         
         HBox hbox = new HBox();
         hbox.setStyle("-fx-background-color: white;");
         hbox.setMinSize(800, 100);
+        
+        this.txtNumber = new TextField();
+        this.txtNumber.setMinSize(150, 30);
+        this.txtNumber.setMaxSize(150, 30);
+        this.txtNumber.setPromptText("Enter the number of people");
+        
+        this.txtInterval = new TextField();
+        this.txtInterval.setMinSize(150, 30);
+        this.txtInterval.setMaxSize(150, 30);
+        this.txtInterval.setPromptText("Enter the interval");
         
         this.display = new TextArea();
         this.display.setMinSize(800, 100);
@@ -134,6 +147,12 @@ public class GUIJosephus extends Application {
 		    });
         
         vbox.getChildren().add(lblText);
+        vbox.getChildren().add(this.txtNumber);
+        vbox.getChildren().add(this.txtInterval);
+        
+        Label pad = new Label("     ");
+        
+        vbox.getChildren().add(pad);
         vbox.getChildren().add(btnStart);
         vbox.getChildren().add(btnReset);
         
@@ -166,13 +185,11 @@ public class GUIJosephus extends Application {
 		
 		this.algorithmManager.setPeople(this.people);	
 		this.algorithmManager.setCount(0);
-		this.threadedImplementation = new ThreadedImplementation(this.algorithmManager);
+		//this.threadedImplementation = new ThreadedImplementation(this.algorithmManager);
 		
 		gc.setFill(Color.GREY);
 		gc.setLineWidth(5);
 		
-		
-
 		this.task = new Task<Vector<Person>>() {
 			@Override 
 			protected Vector<Person> call() throws InterruptedException {
@@ -269,6 +286,39 @@ public class GUIJosephus extends Application {
 	}
 
 	public void kickOff() {
+		
+		int num = this.numberOfPeople;
+		int val = this.killInterval;
+		
+		try { num = Integer.parseInt(this.txtNumber.getText()); }
+		
+		catch (NumberFormatException nfe) { num = this.numberOfPeople; }
+		
+		try { val = Integer.parseInt(this.txtInterval.getText()); }
+		
+		catch (NumberFormatException nfe) { val = this.killInterval; }
+		
+		if ((! (num == 0)) && (! (val == 0))) {
+			
+			this.numberOfPeople = num;
+			this.killInterval = val;
+			this.people = new Vector<Person>();
+			
+			for (int a = 0; a < this.numberOfPeople; a ++) {
+				
+				Person person = new Person(a + 1, false, 0);
+				this.people.add(person);
+				
+			}
+			
+			this.gc.clearRect(0, 0, 820, 750);
+			
+			this.algorithmManager.setPeople(this.people);
+			this.algorithmManager.setNumberOfPeople(this.numberOfPeople);
+			this.algorithmManager.setKillInterval(this.killInterval);
+			this.initialiseCircles(this.gc);
+			
+		}
 		
 		this.resultText = "";
 		this.people = this.algorithmManager.getPeople();
